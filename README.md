@@ -84,4 +84,442 @@
     ![](images/不和陌生人说话.png)
     * 3. 与依赖倒转原则结合 某人和 抽象陌生人说话  让某人和陌生人进行解耦合  
     ![](images/与依赖倒转原则结合.png)
+## 2. 创建型模式
+### 2.1 单例模式
+#### 2.2.1 概念
+* 单例模式是一种对象创建型模式，使用单例模式，可以保证为一个类只生成唯一的实例对象。也就是说，在整个程序空间中，该类只存在一个实例对象。    
+* GoF对单例模式的定义是：保证一个类、只有一个实例存在，同时提供能对该实例加以访问的全局访问方法。
+![](images/单例模式.png)
+#### 2.2.2 为什么使用单例模式
+* 在应用系统开发中，我们常常有以下需求：
+    * 在多个线程之间，比如初始化一次socket资源；比如servlet环境，共享同一个资源或者操作同一个对象
+    * 在整个程序空间使用全局变量，共享资源
+    * 大规模系统中，为了性能的考虑，需要节省对象的创建时间等等。
+因为Singleton模式可以保证为一个类只生成唯一的实例对象，所以这些情况，Singleton模式就派上用场了。
+#### 2.2.3 实现单例步骤常用步骤
+* a) 构造函数私有化
+* b) 提供一个全局的静态方法（全局访问点）
+* c) 在类中定义一个静态指针，指向本类的变量的静态变量指针 
+#### 2.2.4饿汉式单例和懒汉式单例
+```C++
+//懒汉式
+#include <iostream>
+using namespace std;
+
+//懒汉式
+class  Singelton
+{
+private:
+	Singelton()
+	{
+		m_singer = NULL;
+		m_count = 0;
+		cout << "构造函数Singelton ... do" << endl;
+	}
+	
+public:
+	static Singelton *getInstance()
+	{
+		if (m_singer == NULL )  //懒汉式：1 每次获取实例都要判断 2 多线程会有问题
+		{
+			m_singer = new Singelton;
+		}
+		return m_singer;
+	}
+	static void printT()
+	{
+		cout << "m_count: " << m_count << endl;
+	}
+
+private:
+	static Singelton *m_singer;
+	static int m_count;
+};
+
+Singelton *Singelton::m_singer = NULL;  //懒汉式 并没有创建单例对象
+int Singelton::m_count = 0;
+
+
+void main01_1()
+{
+	cout << "演示 懒汉式" << endl;
+	Singelton *p1 = Singelton::getInstance(); //只有在使用的时候，才去创建对象。
+	Singelton *p2 = Singelton::getInstance();
+	if (p1 != p2)
+	{
+		cout << "不是同一个对象" << endl;
+	}
+	else
+	{
+		cout << "是同一个对象" << endl;
+	}
+	p1->printT();
+	p2->printT();
+
+	system("pause");
+	return ;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//俄汉式
+
+class  Singelton2
+{
+private:
+	Singelton2()
+	{
+		m_singer = NULL;
+		m_count = 0;
+		cout << "构造函数Singelton ... do" << endl;
+	}
+	
+public:
+	static Singelton2 *getInstance()
+	{
+// 		if (m_singer == NULL )
+// 		{
+// 			m_singer = new Singelton2;
+// 		}
+		return m_singer;
+	}
+	static void Singelton2::FreeInstance()
+	{
+		if (m_singer != NULL)
+		{
+			delete m_singer;
+			m_singer = NULL;
+			m_count = 0;
+		}
+	}
+	static void printT()
+	{
+		cout << "m_count: " << m_count << endl;
+	}
+
+private:
+	static Singelton2 *m_singer;
+	static int m_count;
+};
+
+Singelton2 *Singelton2::m_singer = new Singelton2; //不管你创建不创建实例，均把实例new出来
+int Singelton2::m_count = 0;
+
+void main()
+{
+	cout << "演示 饿汉式" << endl;
+	
+	Singelton2 *p1 = Singelton2::getInstance(); //只有在使用的时候，才去创建对象。
+	Singelton2 *p2 = Singelton2::getInstance();
+	if (p1 != p2)
+	{
+		cout << "不是同一个对象" << endl;
+	}
+	else
+	{
+		cout << "是同一个对象" << endl;
+	}
+	p1->printT();
+	p2->printT();
+	Singelton2::FreeInstance();
+	Singelton2::FreeInstance();
+
+	
+	system("pause");
+}
+```
+#### 2.2.5 多线程下的懒汉式单例和饿汉式单例 
+* 1. "懒汉"模式虽然有优点，但是每次调用GetInstance()静态方法时，必须判断
+NULL == m_instance，使程序相对开销增大。
+* 2. 多线程中会导致多个实例的产生，从而导致运行代码不正确以及内存的泄露。
+* 3. 提供释放资源的函数
+* 4. 讨论:这是因为C++中构造函数并不是线程安全的。  
+    C++中的构造函数简单来说分两步：  
+    第一步：内存分配  
+    第二步：初始化成员变量  
+    由于多线程的关系，可能当我们在分配内存好了以后，还没来得急初始化成员变量，就进行线程切换，另外一个线程拿到所有权后，由于内存已经分配了，但是变量初始化还没进行，因此打印成员变量的相关值会发生不一致现象。
+#### 多线程下的懒汉式问题抛出：
+![](images/多线程下的懒汉式问题.png)
+```C++
+//#include "stdafx.h"
+#include "windows.h"
+#include "winbase.h"
+#include <process.h>
+#include "iostream"
+#include <tchar.h> 
+
+using namespace std;
+class Singelton
+{
+private:
+	Singelton()
+	{
+		count++;
+		cout << "Singelton构造函数begin\n" << endl;
+		Sleep(1000);
+		cout << "Singelton构造函数end\n" << endl;
+
+	}
+private:
+	//防止拷贝构造和赋值操作
+	Singelton(const Singelton &obj) { ; }
+	Singelton& operator=(const Singelton &obj) { ; }
+public:
+	static Singelton *getSingelton()
+	{
+		//1"懒汉"模式虽然有优点，但是每次调用GetInstance()静态方法时，必须判断
+		//	NULL == m_instance，使程序相对开销增大。
+		//2多线程中会导致多个实例的产生，从而导致运行代码不正确以及内存的泄露。
+		//3提供释放资源的函数
+		return single;
+	}
+
+	static Singelton *releaseSingelton()
+	{
+		if (single != NULL) //需要判断
+		{
+			cout << "释放资源\n" << endl;
+			delete single;
+			single = NULL;
+		}
+		return single;
+	}
+	void pirntS() //测试函数
+	{
+		printf("Singelton printS test count:%d \n", count);
+	}
+
+private:
+	static Singelton *single;
+	static int count;
+};
+
+//note 静态变量类外初始化
+Singelton *Singelton::single = new Singelton();
+int Singelton::count = 0;
+
+int _tmainTTT(int argc, _TCHAR* argv[])
+{
+	Singelton *s1 = Singelton::getSingelton();
+	Singelton *s2 = Singelton::getSingelton();
+	if (s1 == s2)
+	{
+		cout << "ok....equal" << endl;
+	}
+	else
+	{
+		cout << "not.equal" << endl;
+	}
+	s1->pirntS();
+	Singelton::releaseSingelton();
+	cout << "hello...." << endl;
+	system("pause");
+	return 0;
+}
+
+unsigned int threadfunc2(void *myIpAdd)
+{
+	int id = GetCurrentThreadId();
+	printf("\n threadfunc%d \n", id);
+	return 1;
+}
+
+void threadfunc(void *myIpAdd)
+{
+	int id = GetCurrentThreadId();
+	printf("\n threadfunc%d \n", id);
+	Singelton::getSingelton()->pirntS();
+	return;
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+	int i = 0;
+	DWORD dwThreadId[201], dwThrdParam = 1;
+	HANDLE hThread[201];
+	int threadnum = 3;
+
+	for (i = 0; i < threadnum; i++)
+	{
+		//hThread[i] = (HANDLE)_beginthreadex( NULL, 0, &threadfunc, NULL, 0,&dwThreadId[i] );
+		hThread[i] = (HANDLE)_beginthread(&threadfunc, 0, 0);
+		if (hThread[i] == NULL)
+		{
+			printf("begin thread %d error!!!\n", i);
+			break;
+		}
+	}
+	//等待所有的子线程都运行完毕后,才执行 这个代码
+	for (i = 0; i < threadnum; i++)
+	{
+		WaitForSingleObject(hThread[i], INFINITE);
+	}
+	printf("等待线程结束\n");
+	for (i = 0; i < threadnum; i++)
+	{
+		//CloseHandle( hThread[i] );
+	}
+	Singelton::releaseSingelton();
+	cout << "hello...." << endl;
+	system("pause");
+	return 0;
+}
+```
+#### 2.2.6 多线程下懒汉式单例的Double-Checked Locking优化
+```C++
+新建MFC对话框应用程序。
+方便使用临界区类对象，同步线程
+// MFC Diagram 应用程序
+#include "stdafx.h"
+#include "01单例优化.h"
+#include "01单例优化Dlg.h"
+#include "afxdialogex.h"
+
+#include "iostream"
+using namespace std;
+
+//临界区
+static CCriticalSection cs;
+//man pthread_create() 
+class Singleton
+{
+private:
+	Singleton()
+	{
+		TRACE("Singleton begin\n");
+		Sleep(1000);
+		TRACE("Singleton end\n");
+
+	}
+	Singleton(const Singleton &);
+	Singleton& operator = (const Singleton &);
+
+public:
+	static void printV()
+	{
+		TRACE("printV..\n");
+	}
+
+//请思考；懒汉式的Double-Check是一个经典问题！为什么需要2次检查 “if(pInstance == NULL)”
+//场景：假设有线程1、线程2、线程3，同时资源竞争。
+//1）第1个、2个、3个线程执行第一个检查，都有可能进入黄色区域（临界区）
+//2）若第1个线程进入到临界区，第2个、第3个线程需要等待
+//3）第1个线程执行完毕，cs.unlock()后，第2个、第3个线程要竞争执行临界区代码。
+//4）假若第2个线程进入临界区，此时第2个线程需要再次判断 if(pInstance == NULL)”，若第一个线程已经创建实例；第2个线程就不需要再次创建了。保证了单例；
+//5）同样道理，若第2个线程，cs.unlock()后，第3个线程会竞争执行临界区代码；此时第3个线程需要再次判断 if(pInstance == NULL)。通过检查发现实例已经new出来，就不需要再次创建；保证了单例。
+
+	static Singleton *Instantialize()
+	{
+		if(pInstance == NULL)  //double check 
+		{   
+			cs.Lock(); //只有当pInstance等于null时，才开始使用加锁机制 二次检查
+			if(pInstance == NULL)
+			{
+				pInstance = new Singleton(); 
+			}
+			cs.Unlock();
+		}
+		return pInstance;
+	}
+	static Singleton *pInstance;
+	
+};
+
+Singleton* Singleton::pInstance = 0;
+
+void CMy01单例优化Dlg::OnBnClickedButton1()
+{
+	CCriticalSection  cs;
+	cs.Lock();
+
+	cs.Unlock();
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+void threadfunc(void *myIpAdd)
+{
+	int id = GetCurrentThreadId();
+	TRACE("\n threadfunc%d \n", id);
+	Singleton::Instantialize()->printV();
+	//Singelton::getSingelton()->pirntS();
+}
+
+void CMy01单例优化Dlg::OnBnClickedButton2()
+{
+	int i = 0; 
+	DWORD dwThreadId[201], dwThrdParam = 1;
+	HANDLE hThread[201]; 
+	int threadnum = 3;
+
+	for (i=0; i<threadnum; i++)
+	{
+		//hThread[i] = (HANDLE)_beginthreadex( NULL, 0, &threadfunc, NULL, 0,&dwThreadId[i] );
+		hThread[i] = (HANDLE)_beginthread(&threadfunc, 0 , 0 );
+		if (hThread[i] == NULL)
+		{
+			TRACE("begin thread %d error!!!\n", i);
+			break;
+		}		
+	}
+
+	for (i=0; i<threadnum; i++)
+	{
+		WaitForSingleObject( hThread[i], INFINITE );	
+	}
+	TRACE("等待线程结束\n");
+	for (i=0; i<threadnum; i++)
+	{
+		//CloseHandle( hThread[i] );
+	}
+	//Singelton::releaseSingelton();
+	
+	TRACE("ddddd\n");
+}
+```
+#### 2.2.7 程序并发机制扩展阅读
+* 程序的并发执行往往带来与时间有关的错误，甚至引发灾难性的后果。这需要
+引入同步机制。使用多进程与多线程时，有时需要协同两种或多种动作，此过程就
+称同步（Synchronization）。引入同步机制的第一个原因是为了控制线程之间的资源
+同步访问，因为多个线程在共享资源时如果发生访问冲突通常会带来不正确的后果。
+例如，一个线程正在更新一个结构，同时另一个线程正试图读取同一个结构。结果，
+我们将无法得知所读取的数据是新的还是旧的，或者是二者的混合。第二个原因是
+有时要求确保线程之间的动作以指定的次序发生，如一个线程需要等待由另外一个
+线程所引起的事件。
+	* 为了在多线程程序中解决同步问题，Windows提供了四种主要的同步对象，
+每种对象相对于线程有两种状态——信号状态（signal state）和非信号状态（nonsignal
+state）。当相关联的同步对象处于信号状态时，线程可以执行（访问共享资源），反
+之必须等待。这四种同步对象是：
+	* （1）事件对象（Event）。事件对象作为标志在线程间传递信号。一个或多个线
+程可等待一个事件对象，当指定的事件发生时，事件对象通知等待线程可以开始执
+行。它有两种类型：自动重置（auto-reset）事件和手动重置（manual-reset）事件。
+	* （2）临界区（Critical Section）。临界区对象通过提供一个进程内所有线程必须
+共享的对象来控制线程。只有拥有那个对象的线程可以访问保护资源。在另一个线
+程可以访问该资源之前，前一个线程必须释放临界区对象，以便新的线程可以索取
+对象的访问权。
+	* （3）互斥量（Mutex Semaphore）。互斥量的工作方式非常类似于临界区，只是
+互斥量不仅保护一个进程内为多个线程使用的共享资源，而且还可以保护系统中两
+个或多个进程之间的的共享资源。
+	* （4）信号量（Semaphore）。信号量可以允许一个或有限个线程访问共享资源。
+它是通过计数器来实现的，初始化时赋予计数器以可用资源数，当将信号量提供给
+一个线程时，计数器的值减1，当一个线程释放它时，计数器值加1。当计数器值小
+于等于0时，相应线程必须等待。信号量是Windows98同步系统的核心。从本质上
+讲，互斥量是信号量的一种特殊形式。
+* Windows/NT还提供了另外一种Windows95没有的同步对象：可等待定时器
+（Waitable Timer）。它可以封锁线程的执行，直到到达某一具体时间。这可以用于
+后台任务。
+#### 2.2.8 总结 
+* 在很多人印象中，单例模式可能是23个设计模式中最简单的一个。如果不考虑多线程，的确如此，但是一旦要在多线程中运用，那么从我们的教程中可以了解到，它涉及到很多编译器，多线程，C++语言标准等方面的内容。本专题参考的资料如下：
+	* 1、C++ Primer (Stanley B.Lippman),主要参考的是模板静态变量的初始化以及实例化。
+	* 2、 MSDN,有关线程同步interlocked相关的知识。
+	* 3、Effective C++ 04条款(Scott Meyers) Non-Local-Static对象初始化顺序以及Meyers单例模式的实现。
+	* 4、Double-Checked Locking,Threads,Compiler Optimizations,and More（Scott Meyers），解释了由于编译器的优化，导致auto_ptr.reset函数不安全，shared_ptr有类似情况。我们避免使用reset函数。
+	* 5、C++全局和静态变量初始化顺序的研究(CSDN)。
+	* 6、四人帮的经典之作：设计模式
+	* 7、windows 核心编程(Jeffrey Richter) 
+
+
+
+
+
+
 

@@ -86,21 +86,21 @@
     ![](images/与依赖倒转原则结合.png)
 ## 2. 创建型模式
 ### 2.1 单例模式
-#### 2.2.1 概念
+#### 2.1.1 概念
 * 单例模式是一种对象创建型模式，使用单例模式，可以保证为一个类只生成唯一的实例对象。也就是说，在整个程序空间中，该类只存在一个实例对象。    
 * GoF对单例模式的定义是：保证一个类、只有一个实例存在，同时提供能对该实例加以访问的全局访问方法。
 ![](images/单例模式.png)
-#### 2.2.2 为什么使用单例模式
+#### 2.1.2 为什么使用单例模式
 * 在应用系统开发中，我们常常有以下需求：
     * 在多个线程之间，比如初始化一次socket资源；比如servlet环境，共享同一个资源或者操作同一个对象
     * 在整个程序空间使用全局变量，共享资源
     * 大规模系统中，为了性能的考虑，需要节省对象的创建时间等等。
 因为Singleton模式可以保证为一个类只生成唯一的实例对象，所以这些情况，Singleton模式就派上用场了。
-#### 2.2.3 实现单例步骤常用步骤
+#### 2.1.3 实现单例步骤常用步骤
 * a) 构造函数私有化
 * b) 提供一个全局的静态方法（全局访问点）
 * c) 在类中定义一个静态指针，指向本类的变量的静态变量指针 
-#### 2.2.4饿汉式单例和懒汉式单例
+#### 2.1.4饿汉式单例和懒汉式单例
 ```C++
 //懒汉式
 #include <iostream>
@@ -228,7 +228,7 @@ void main()
 	system("pause");
 }
 ```
-#### 2.2.5 多线程下的懒汉式单例和饿汉式单例 
+#### 2.1.5 多线程下的懒汉式单例和饿汉式单例 
 * 1. "懒汉"模式虽然有优点，但是每次调用GetInstance()静态方法时，必须判断
 NULL == m_instance，使程序相对开销增大。
 * 2. 多线程中会导致多个实例的产生，从而导致运行代码不正确以及内存的泄露。
@@ -365,7 +365,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	return 0;
 }
 ```
-#### 2.2.6 多线程下懒汉式单例的Double-Checked Locking优化
+#### 2.1.6 多线程下懒汉式单例的Double-Checked Locking优化
 ```C++
 新建MFC对话框应用程序。
 方便使用临界区类对象，同步线程
@@ -476,7 +476,7 @@ void CMy01单例优化Dlg::OnBnClickedButton2()
 	TRACE("ddddd\n");
 }
 ```
-#### 2.2.7 程序并发机制扩展阅读
+#### 2.1.7 程序并发机制扩展阅读
 * 程序的并发执行往往带来与时间有关的错误，甚至引发灾难性的后果。这需要
 引入同步机制。使用多进程与多线程时，有时需要协同两种或多种动作，此过程就
 称同步（Synchronization）。引入同步机制的第一个原因是为了控制线程之间的资源
@@ -507,7 +507,7 @@ state）。当相关联的同步对象处于信号状态时，线程可以执行
 * Windows/NT还提供了另外一种Windows95没有的同步对象：可等待定时器
 （Waitable Timer）。它可以封锁线程的执行，直到到达某一具体时间。这可以用于
 后台任务。
-#### 2.2.8 总结 
+#### 2.1.8 总结 
 * 在很多人印象中，单例模式可能是23个设计模式中最简单的一个。如果不考虑多线程，的确如此，但是一旦要在多线程中运用，那么从我们的教程中可以了解到，它涉及到很多编译器，多线程，C++语言标准等方面的内容。本专题参考的资料如下：
 	* 1、C++ Primer (Stanley B.Lippman),主要参考的是模板静态变量的初始化以及实例化。
 	* 2、 MSDN,有关线程同步interlocked相关的知识。
@@ -515,11 +515,300 @@ state）。当相关联的同步对象处于信号状态时，线程可以执行
 	* 4、Double-Checked Locking,Threads,Compiler Optimizations,and More（Scott Meyers），解释了由于编译器的优化，导致auto_ptr.reset函数不安全，shared_ptr有类似情况。我们避免使用reset函数。
 	* 5、C++全局和静态变量初始化顺序的研究(CSDN)。
 	* 6、四人帮的经典之作：设计模式
-	* 7、windows 核心编程(Jeffrey Richter) 
+	* 7、windows 核心编程(Jeffrey Richter)
+### 2.2 简单工厂模式
+#### 2.2.1 什么是简单工厂模式
+* 简单工厂模式属于类的创建型模式,又叫做静态工厂方法模式。通过专门定义一个类来负责创建其他类的实例，被创建的实例通常都具有共同的父类。
+#### 2.2.2 模式中包含的角色及其职责
+* 1. 工厂（Creator）角色
+简单工厂模式的核心，它负责实现创建所有实例的内部逻辑。工厂类可以被外界直接调用，创建所需的产品对象。
+* 2. 抽象（Product）角色
+简单工厂模式所创建的所有对象的父类，它负责描述所有实例所共有的公共接口。
+* 3. 具体产品（Concrete Product）角色  
+
+**简单工厂模式所创建的具体实例对象**  
+* ![](images/简单工厂模式所创建的具体实例对象.png)  
+//依赖: 一个类的对象 当另外一个类的函数参数或者是返回值  
+
+**简单工厂模式的优缺点**  
+* 在这个模式中，工厂类是整个模式的关键所在。它包含必要的判断逻辑，能够根据外界给定的信息，决定究竟应该创建哪个具体类的对象。用户在使用时可以直接根据工厂类去创建所需的实例，而无需了解这些对象是如何创建以及如何组织的。有利于整个软件体系结构的优化。不难发现，简单工厂模式的缺点也正体现在其工厂类上，由于工厂类集中了所有实例的创建逻辑，所以“高内聚”方面做的并不好。另外，当系统中的具体产品类不断增多时，可能会出现要求工厂类也要做相应的修改，扩展性并不很好。
+#### 2.2.3 案例 
+```C++
+#include "iostream"
+using namespace std;
+
+//思想： 核心思想是用一个工厂，来根据输入的条件产生不同的类，然后根据不同类的virtual函数得到不同的结果。
+//元素分析：
+//抽象产品类：水果类
+//具体的水果了：香蕉类、苹果类、梨子
+//优点 适用于不同情况创建不同的类时
+//缺点 客户端必须要知道基类和工厂类，耦合性差 增加一个产品，需要修改工厂类
+
+class Fruit
+{
+public:
+	virtual void getFruit() = 0;
+
+protected:
+private:
+};
 
 
+class Banana : public Fruit
+{
+public:
+	virtual void getFruit()
+	{
+		cout<<"香蕉"<<endl;
+
+	}
+protected:
+private:
+};
 
 
+class Pear : public Fruit
+{
+public:
+	virtual void getFruit()
+	{
+		cout<<"梨子"<<endl;
+
+	}
+protected:
+private:
+};
+
+class Factory 
+{
+public:
+	static Fruit* Create(char *name)
+	{
+		Fruit *tmp = NULL;
+		if (strcmp(name, "pear") == 0)
+		{
+			tmp = new Pear();
+		}
+		else if (strcmp(name, "banana") == 0)
+		{
+			tmp = new Banana();
+		}
+		else
+		{
+			return NULL;
+		}
+		return tmp;
+	}
+protected:
+private:
+};
+
+void main41()
+{
+	Fruit *pear =  Factory::Create("pear");
+	if (pear == NULL)
+	{
+		cout<<"创建pear失败\n";
+	}
+	pear->getFruit();
+	
+	Fruit *banana =  Factory::Create("banana");
+	banana->getFruit();
+
+	system("pause");
+}
+```
+#### 2.2.4 练习
+* 主要用于创建对象。新添加类时，不会影响以前的系统代码。核心思想是用一个工厂来根据输入的条件产生不同的类，然后根据不同类的virtual函数得到不同的结果。
+    * GOOD:适用于不同情况创建不同的类时
+    * BUG：客户端必须要知道基类和工厂类，耦合性差
+![](images/工厂类与基类为关联关系.png)  
+工厂类与基类为关联关系
+```C++
+#include "iostream"
+using namespace std;
+//需求：//模拟四则运算；
+		//用操作符工厂类生产操作符（加减乘除）, 进行结果运算
+
+//运算符抽象类 COperation	
+//加减乘除具体的类	(注意含有2个操作数)
+//工厂类CCalculatorFactory 
+//核心思想 用一个工厂来根据输入的条件产生不同的类，然后根据不同类的virtual函数得到不同的结果
+
+class COperation
+{
+public:
+	int first;
+	int second;
+	
+public:
+	virtual double GetResult() = 0;
+private:
+};
+
+class AddOperation : public COperation
+{
+public:
+	double GetResult()
+	{
+		return first + second;
+	}
+private:
+};
+
+class SubOperation : public COperation
+{
+public:
+	double GetResult()
+	{
+		return first - second;
+	}
+private:
+};
+
+class CCalculatorFactory
+{
+public:
+	static COperation*CreateOperation(char cOperator)
+	{
+		COperation * tmp = NULL;	
+		switch(cOperator)
+		{
+		case '+':
+			tmp = new AddOperation();
+			break;
+		case '-':
+			tmp = new SubOperation();
+			break;
+		default:
+			tmp = NULL;
+		}
+		return tmp;
+	}
+};
+
+void main()
+{
+	COperation *op1 = CCalculatorFactory::CreateOperation('+');
+	op1->first = 10;
+	op1->second = 20;
+	cout<<op1->GetResult()<<endl;
+
+	COperation *op2 = CCalculatorFactory::CreateOperation('-');
+	op2->first = 10;
+	op2->second = 20;
+	cout<<op2->GetResult()<<endl;
+
+	cout<<"hello...\n";
+	system("pause");
+}
+```
+### 2.3 工厂模式
+#### 2.3.1 概念 
+* 工厂方法模式同样属于类的创建型模式又被称为多态工厂模式 。工厂方法模式的意义是定义一个创建产品对象的工厂接口，将实际创建工作推迟到子类当中。
+核心工厂类不再负责产品的创建，这样核心类成为一个抽象工厂角色，仅负责具体工厂子类必须实现的接口，这样进一步抽象化的好处是使得工厂方法模式可以使系统在不修改具体工厂角色的情况下引进新的产品。
+#### 2.3.2 类图角色和职责
+* 抽象工厂（Creator）角色
+    * 工厂方法模式的核心，任何工厂类都必须实现这个接口。
+* 具体工厂（ Concrete  Creator）角色
+    * 具体工厂类是抽象工厂的一个实现，负责实例化产品对象。
+* 抽象（Product）角色     
+    * 工厂方法模式所创建的所有对象的父类，它负责描述所有实例所共有的公共接口。
+* 具体产品（Concrete Product）角色 
+    * 工厂方法模式所创建的具体实例对象  
+![](images/工厂模式.png)
+![](images/工厂方法模式结构图.png)
+#### 2.3.3 工厂方法模式和简单工厂模式比较
+* 工厂方法模式与简单工厂模式在结构上的不同不是很明显。工厂方法类的核心是一个抽象工厂类，而简单工厂模式把核心放在一个具体类上。 
+* 工厂方法模式之所以有一个别名叫多态性工厂模式是因为具体工厂类都有共同的接口，或者有共同的抽象父类。
+* 当系统扩展需要添加新的产品对象时，仅仅需要添加一个具体对象以及一个具体工厂对象，原有工厂对象不需要进行任何修改，也不需要修改客户端，很好的符合了“开放－封闭”原则。而简单工厂模式在添加新产品对象后不得不修改工厂方法，扩展性不好。工厂方法模式退化后可以演变成简单工厂模式。 
+* “开放－封闭”通过添加代码的方式，不是通过修改代码的方式完成功能的增强。
+```C++
+#include "iostream"
+using namespace std;
+
+class Fruit
+{
+public:
+	virtual void sayname()
+	{
+		cout<<"fruit\n";
+	}
+};
+
+class FruitFactory
+{
+public:
+	virtual Fruit* getFruit()
+	{
+		return new Fruit();
+	}
+};
 
 
+//香蕉
+class Banana : public Fruit
+{
+public:
+	virtual void sayname()
+	{
+		cout<<"Banana \n"<<endl;
+	}
+};
 
+//香蕉工厂
+class BananaFactory : public  FruitFactory
+{
+public:
+	virtual Fruit* getFruit()
+	{
+		return new Banana;
+	}
+};
+
+
+//苹果
+class Apple : public Fruit
+{
+public:
+	virtual void sayname()
+	{
+		cout<<"Apple \n"<<endl;
+	}
+};
+
+//苹果工厂
+class AppleFactory : public  FruitFactory
+{
+public:
+	virtual Fruit* getFruit()
+	{
+		return new Apple;
+	}
+};
+
+void main()
+{
+	FruitFactory * ff  = NULL;
+	Fruit *fruit = NULL;
+
+	//1
+	ff = new BananaFactory();
+	fruit = ff->getFruit();
+	fruit->sayname();
+
+	delete fruit;
+	delete ff;
+
+	//2苹果
+	ff = new AppleFactory();
+	fruit = ff->getFruit();
+	fruit->sayname();
+
+	delete fruit;
+	delete ff;
+
+	cout<<"hello....\n";
+	system("pause");
+}
+```

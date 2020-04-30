@@ -812,3 +812,350 @@ void main()
 	system("pause");
 }
 ```
+### 2.4 抽象工厂
+#### 2.4.1 概念 
+* 抽象工厂模式是所有形态的工厂模式中最为抽象和最其一般性的。抽象工厂模式可以向客户端提供一个接口，使得客户端在不必指定产品的具体类型的情况下，能够创建多个产品族的产品对象。	
+#### 2.4.2 产品族和产品等级结构
+![](images/产品族和产品等级结构.png)   
+* 备注1：工厂模式：要么生产香蕉、要么生产苹果、要么生产西红柿；但是不能同时生产一个产品组。抽象工厂：能同时生产一个产品族。===》抽象工厂存在原因  
+* 解释:
+    * 具体工厂在开闭原则下,能生产香蕉/苹果/梨子;  (产品等级结构)  
+    * 抽象工厂:在开闭原则下,能生产：南方香蕉/苹果/梨子 (产品族)
+								  北方香蕉/苹果/梨子
+* 重要区别：
+    * 工厂模式只能生产一个产品。（要么香蕉、要么苹果）
+    * 抽象工厂可以一下生产一个产品族（里面有很多产品组成）
+#### 2.4.3 模式中包含的角色及其职责
+* 1. 抽象工厂（Creator）角色 
+抽象工厂模式的核心，包含对多个产品结构的声明，任何工厂类都必须实现这个接口。
+* 2. 具体工厂（ Concrete  Creator）角色
+具体工厂类是抽象工厂的一个实现，负责实例化某个产品族中的产品对象。
+* 3. 抽象（Product）角色
+抽象模式所创建的所有对象的父类，它负责描述所有实例所共有的公共接口。
+* 4. 具体产品（Concrete Product）角色
+抽象模式所创建的具体实例对象
+![](images/抽象模式所创建的具体实例对象.png)
+![](images/抽象模式所创建的具体实例对象2.png)
+#### 2.4.4 案例 
+```C++
+class Fruit
+{
+public:
+	virtual void sayname()
+	{
+		cout<<"fruit\n";
+	}
+};
+
+class FruitFactory
+{
+public:
+	virtual Fruit* getApple()
+	{
+		return new Fruit();
+	}
+	virtual Fruit* getBanana()
+	{
+		return new Fruit();
+	}
+};
+
+//南方香蕉
+class SouthBanana : public Fruit
+{
+public:
+	virtual void sayname()
+	{
+		cout<<"South Banana \n"<<endl;
+	}
+};
+
+
+//南方苹果
+class SouthApple : public Fruit
+{
+public:
+	virtual void sayname()
+	{
+		cout<<"South Apple \n"<<endl;
+	}
+};
+
+
+//北方香蕉
+class NorthBanana : public Fruit
+{
+public:
+	virtual void sayname()
+	{
+		cout<<"North Banana \n"<<endl;
+	}
+};
+
+
+//北方苹果
+class NorthApple : public Fruit
+{
+public:
+	virtual void sayname()
+	{
+		cout<<"North Apple \n"<<endl;
+	}
+};
+
+class SourthFruitFactory : public FruitFactory
+{
+public:
+	virtual Fruit* getApple()
+	{
+		return new SouthApple();
+	}
+	virtual Fruit* getBanana()
+	{
+		return new SouthBanana();
+	}
+};
+
+class NorthFruitFactory : public FruitFactory
+{
+public:
+	virtual Fruit* getApple()
+	{
+		return new NorthApple();
+	}
+	virtual Fruit* getBanana()
+	{
+		return new NorthBanana();
+	}
+};
+
+void main()
+{	
+	FruitFactory * ff  = NULL;
+	Fruit *fruit = NULL;
+
+	ff = new SourthFruitFactory();
+	fruit = ff->getApple();
+	fruit->sayname();
+	fruit = ff->getBanana();
+	fruit->sayname();
+
+	delete fruit;
+	delete ff;
+
+	ff = new NorthFruitFactory();
+	fruit = ff->getApple();
+	fruit->sayname();
+	fruit = ff->getBanana();
+	fruit->sayname();
+
+	delete fruit;
+	delete ff;
+
+	cout<<"hello....\n";
+	system("pause");
+}
+```
+### 2.5建造者模式
+#### 2.5.1 概念
+* Builder模式也叫建造者模式或者生成器模式，是由GoF提出的23种设计模式中的一种。Builder模式是一种对象创建型模式之一，用来隐藏复合对象的创建过程，它把复合对象的创建过程加以抽象，通过子类继承和重载的方式，动态地创建具有复合属性的对象。
+* 对象的创建：Builder模式是为对象的创建而设计的模式- 创建的是一个复合对象：被创建的对象为一个具有复合属性的复合对象- 关注对象创建的各部分的创建过程：不同的工厂（这里指builder生成器）对产品属性有不同的创建方法
+#### 2.5.2 角色和职责
+![](images/角色和职责.png)
+* 1. Builder：为创建产品各个部分，统一抽象接口。
+* 2. ConcreteBuilder：具体的创建产品的各个部分，部分A， 部分B，部分C。
+* 3. Director：构造一个使用Builder接口的对象。
+* 4. Product：表示被构造的复杂对象。
+ConcreteBuilder创建该产品的内部表示并定义它的装配过程，包含定义组成部件的类，包括将这些部件装配成最终产品的接口。
+* 适用情况：
+    * 一个对象的构建比较复杂，将一个对象的构建(?)和对象的表示(?)进行分离。
+#### 2.5.3 创建者模式和工厂模式的区别
+* Factory模式中：
+    * 1. 有一个抽象的工厂。
+    * 2. 实现一个具体的工厂---汽车工厂。
+    * 3. 工厂生产汽车A，得到汽车产品A。
+    * 4. 工厂生产汽车B，得到汽车产品B。  
+	这样做，实现了购买者和生产线的隔离。强调的是结果。  
+* Builder模式:
+    * 1. 引擎工厂生产引擎产品，得到汽车部件A。
+    * 2. 轮胎工厂生产轮子产品，得到汽车部件B。
+    * 3. 底盘工厂生产车身产品，得到汽车部件C。
+    * 4. 将这些部件放到一起，形成刚好能够组装成一辆汽车的整体。
+    * 5. 将这个整体送到汽车组装工厂，得到一个汽车产品。  
+这样做，目的是为了实现复杂对象生产线和其部件的解耦。强调的是过程
+* 两者的区别在于：
+    * Factory模式不考虑对象的组装过程，而直接生成一个我想要的对象。
+    * Builder模式先一个个的创建对象的每一个部件，再统一组装成一个对象。
+    * Factory模式所解决的问题是，工厂生产产品。
+    * 而Builder模式所解决的问题是工厂控制产品生成器组装各个部件的过程，然后从产品生成器中得到产品。
+    * Builder模式不是很常用。模式本身就是一种思想。知道了就可以了。               
+    * 设计模式就是一种思想。学习一个模式，花上一两个小时把此模式的意思理解了，就够了。其精华的所在会在以后工作的设计中逐渐体现出来。
+#### 2.5.4 案例
+* 关键字：建公寓工程队 FlatBuild  别墅工程队 VillaBuild  设计者Director
+```C++
+#include <iostream>
+using namespace std;
+#include "string"
+class House
+{
+public:
+	void setFloor(string floor)
+	{
+		this->m_floor = floor;
+	}
+	void setWall(string wall)
+	{
+		this->m_wall = wall;
+	}
+	void setDoor(string door)
+	{
+		this->m_door = door;
+	}
+
+	//
+	string getFloor()
+	{
+		return m_floor;
+	}
+	string setWall()
+	{
+		return  m_wall;
+	}
+	string setDoor()
+	{
+		return m_door;
+	}
+
+protected:
+private:
+	string	m_floor;
+	string	m_wall;
+	string	m_door;
+};
+
+class Builder
+{
+public:
+	virtual void makeFloor() = 0;
+	virtual void makeWall() =  0;
+	virtual void makeDoor() = 0;
+	virtual House *GetHouse() = 0;
+};
+
+//公寓
+class FlatBuild : public Builder
+{
+public:
+	FlatBuild()
+	{
+		pHouse = new House;
+	}
+	virtual void makeFloor()
+	{
+		pHouse->setFloor("flat Door");
+	}
+	virtual void makeWall()
+	{
+		pHouse->setWall("flat Wall");
+	}
+	virtual void makeDoor()
+	{
+		pHouse->setDoor("flat Door");
+	}
+	virtual House *GetHouse()
+	{
+		return pHouse;
+	}
+
+private:
+	House *pHouse;
+};
+
+//别墅
+class VillaBuild : public Builder
+{
+public:
+	VillaBuild()
+	{
+		pHouse = new House;
+	}
+	virtual void makeFloor()
+	{
+		pHouse->setFloor("villa floor");
+	}
+	virtual void makeWall()
+	{
+		pHouse->setWall("villa Wall");
+	}
+	virtual void makeDoor()
+	{
+		pHouse->setDoor("villa Door");
+	}
+	virtual House *GetHouse()
+	{
+		return pHouse;
+	}
+private:
+	House *pHouse;
+};
+
+class Director
+{
+public:
+	void Construct(Builder *builder)
+	{
+		builder->makeFloor();
+		builder->makeWall();
+		builder->makeDoor();
+	}
+protected:
+private:
+};
+
+
+void main()
+{
+	//客户直接造房子
+	House *pHose = new House;
+	pHose->setDoor("wbm门");
+	pHose->setFloor("wbmFloor");
+	pHose->setWall("wbmWall");
+	delete pHose;
+
+	
+	/* //工程队直接造房子 
+	Builder *builder = new FlatBuild;
+	builder->makeFloor();
+	builder->makeWall();
+	builder->makeDoor();
+	*/
+
+	//指挥者（设计师）指挥 工程队 和 建房子
+	Director *director = new Director;
+
+	//建公寓
+	Builder *builder = new FlatBuild;
+	director->Construct(builder); //设计师 指挥 工程队干活
+	House *house = builder->GetHouse();
+	cout << house->getFloor() << endl;
+	delete house;
+	delete builder;
+
+	//建别墅
+	builder = new VillaBuild;
+	director->Construct(builder); //设计师 指挥 工程队干活
+	house = builder->GetHouse();
+	cout << house->getFloor() << endl;
+	delete house;
+	delete builder;
+	
+	delete director;
+	
+	system("pause");
+	return ;
+}
+```
+
+
+
+

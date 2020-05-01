@@ -1155,7 +1155,92 @@ void main()
 	return ;
 }
 ```
+### 2.6 原型模式prototype
+#### 2.6.1 概念
+* Prototype模式是一种对象创建型模式，它采取复制原型对象的方法来创建对象的实例。使用Prototype模式创建的实例，具有与原型一样的数据。  
+1）由原型对象自身创建目标对象。也就是说，对象创建这一动作发自原型对象本身。  
+2）目标对象是原型对象的一个克隆。也就是说，通过Prototype模式创建的对象，不仅仅与原型对象具有相同的结构，还与原型对象具有相同的值。  
+3）根据对象克隆深度层次的不同，有浅度克隆与深度克隆。
+#### 2.6.2 角色和职责
+![](images/原型模式.png)
+* 原型模式主要面对的问题是：“某些结构复杂的对象”的创建工作；由于需求的变化，这些对象经常面临着剧烈的变化，但是他们却拥有比较稳定一致的接口。
+适用情况：
+* 一个复杂对象，具有自我复制功能，统一一套接口。
+#### 2.6.3 案例
+```C++
+class Person
+{
+public:
+	virtual Person *Clone() = 0;
+	virtual void printT() = 0;
 
+};
 
+class JavaProgrammer : public Person
+{
+public:
+	JavaProgrammer()
+	{
+		this->m_name = "";
+		this->m_age = 0;
+		m_resume = NULL;
+	}
+	JavaProgrammer(string name, int age)
+	{
+		this->m_name = name;
+		this->m_age = age;
+		m_resume = NULL;
+	}
+
+	~JavaProgrammer()
+	{
+		if (m_resume!= NULL)
+		{
+			free(m_resume);
+			m_resume = NULL;
+		}
+	}
+	virtual Person *Clone()
+	{
+		JavaProgrammer *p = new JavaProgrammer;
+		*p = *this;
+		return p;
+	}
+
+	void setResume(char *resume)
+	{
+		m_resume = new char[strlen(resume) + 1];
+		strcpy(m_resume, resume);
+	}
+
+	virtual void printT()
+	{
+		cout << "m_name:" << m_name << "\t" << "m_age:" << m_age << endl;
+		if (m_resume != NULL)
+		{
+			cout << m_resume << endl;
+		}
+	}
+protected:
+private:
+	string	m_name;
+	int		m_age;
+	char	*m_resume;
+};
+
+void main()
+{
+	JavaProgrammer javaperson1("张三", 30);
+	javaperson1.setResume("我是java程序员");
+	Person *p2 = javaperson1.Clone();  //对象具有自我复制功能 注意深拷贝和浅拷贝问题
+	p2->printT();
+
+	delete p2;
+	
+	cout<<"hello..."<<endl;
+	system("pause");
+	return ;
+}
+```
 
 

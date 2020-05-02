@@ -1242,5 +1242,222 @@ void main()
 	return ;
 }
 ```
+## 3. 结构型模式
+### 3.1 代理模式
+#### 3.1.1 概念
+* Proxy模式又叫做代理模式，是构造型的设计模式之一，它可以为其他对象提供一种代理（Proxy）以控制对这个对象的访问。	
+* 所谓代理，是指具有与代理元（被代理的对象）具有相同的接口的类，客户端必须通过代理与被代理的目标类交互，而代理一般在交互的过程中（交互前后），进行某些特别的处理。
+#### 3.1.2 类图角色和职责
+![](images/类图角色和职责.jpg)
+![](images/类图角色和职责.png)  
+![](images/类图角色和职责2.png)
+* subject（抽象主题角色）：
+	* 真实主题与代理主题的共同接口。
+* RealSubject（真实主题角色）：
+	* 定义了代理角色所代表的真实对象。 
+* Proxy（代理主题角色）：
+	* 含有对真实主题角色的引用，代理角色通常在将客户端调用传递给真是主题对象之前或者之后执行某些操作，而不是单纯返回真实的对象。
+* 适合于：
+	* 为其他对象提供一种代理以控制对这个对象的访问。
+* 提示：a中包含b类；a、b类实现协议类protocol 
+#### 3.1.3 理论模板
+* 理论模型
+提示：a中包含b类；a、b类实现协议类protocol
+```C++
+#include <string>
+#include <iostream>
+using namespace std;
+//定义接口
+class Interface
+{
+public:
+	virtual void Request()=0;
+};
+//真实类
+class RealClass : public Interface
+{
+public:
+	virtual void Request()
+	{
+		cout<<"真实的请求"<<endl;
+	}
+};
+//代理类
+class ProxyClass : public Interface
+{
+private:
+	RealClass* m_realClass;
+public:
+	virtual void Request()
+	{
+	    m_realClass= new RealClass();
+		m_realClass->Request();
+		delete m_realClass;
+	}
+};
+
+//客户端：
+int main()
+{
+	ProxyClass* test=new ProxyClass();
+	test->Request();
+	return 0;
+}
+```
+#### 3.1.4 案例
+* 案例2 cocos2d-x中应用程序代理类
+* 出版社被代理对象，要卖书
+* 淘宝、当当网（网上书店），代理对象
+* 客户端通过当当网进行买书。
+```C++
+#include <iostream>
+using namespace std;
+
+/*
+subject（抽象主题角色）：
+	真实主题与代理主题的共同接口。
+	RealSubject（真实主题角色）：
+	定义了代理角色所代表的真实对象。 
+	Proxy（代理主题角色）：
+	含有对真实主题角色的引用，代理角色通常在将客户端调用传递给真是主题对象之前或者之后执行某些操作，而不是单纯返回真实的对象。
+
+	提示：a中包含b类；a、b类实现协议类protocol 
+
+*/
+
+class  Subject
+{
+public:
+	virtual void SaleBook() = 0;
+protected:
+private:
+};
 
 
+class  RealSubject : public Subject
+{
+public:
+	virtual void SaleBook()
+	{
+		cout << "实体店买书....\n";
+	}
+protected:
+private:
+};
+
+class  ProxyTaoBao : public Subject
+{
+public:
+	virtual void SaleBook()
+	{
+		//
+		Double11();
+		RealSubject rs;
+		rs.SaleBook();
+		Double11();
+	}
+	void Double11()
+	{
+		cout << "Double11 打折 半价" << endl;
+	}
+protected:
+private:
+};
+
+
+class  ProxyTaoBao2 : public Subject
+{
+public:
+	void SetRealSubject(RealSubject *rs)
+	{
+		m_s = rs;
+	}
+	virtual void SaleBook()
+	{
+		Double11();
+		m_s->SaleBook();
+	}
+	void Double11()
+	{
+		cout << "Double11 打折 半价" << endl;
+	}
+protected:
+private:
+	RealSubject *m_s;
+};
+
+void main()
+{
+	ProxyTaoBao *ptb = new ProxyTaoBao;
+	ptb->SaleBook();
+	delete ptb;
+	return ;
+}
+```
+```C++
+#include "iostream"
+using namespace std;
+
+//a包含了一个类b，类b实现了某一个协议（一套接口）
+class AppProtocol
+{
+public:
+	virtual int ApplicationDidFinsh() = 0;
+protected:
+private:
+};
+
+//协议实现类
+class AppDelegate : public AppProtocol
+{
+public:
+	AppDelegate()
+	{
+		;
+	}
+	virtual int ApplicationDidFinsh()  //cocos2dx函数的入口点
+	{
+		cout<<"ApplicationDidFinsh do...\n";
+		return 0;
+	}
+};
+
+//Application是代理类，在代理类中包含一个真正的实体类
+class Application
+{
+public:
+	Application()
+	{
+		ap = NULL;
+	}
+public:
+	void run()
+	{
+		ap = new AppDelegate();
+		ap->ApplicationDidFinsh();
+		delete ap;
+	}
+protected:
+private:
+	AppDelegate *ap;
+};
+
+//好处：main函数不需要修改了。只需要修改协议实现类
+void main()
+{
+	Application *app = new Application();
+	app->run();
+
+	if (app == NULL)
+	{
+		free(app);
+	}
+
+	cout<<"hello..."<<endl;
+	system("pause");
+}
+```
+#### 3.1.5 练习
+* 1. 定义真实玩家（李逍遥）
+* 2. 定义代理玩家
+* 3. 代理玩家，代替李逍遥，进行升级打怪

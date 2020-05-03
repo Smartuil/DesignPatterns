@@ -1461,3 +1461,104 @@ void main()
 * 1. 定义真实玩家（李逍遥）
 * 2. 定义代理玩家
 * 3. 代理玩家，代替李逍遥，进行升级打怪
+### 3.2 装饰模式
+#### 3.2.1 概念
+* 装饰（ Decorator ）模式又叫做包装模式。通过一种对客户端透明的方式来扩展对象的功能，是继承关系的一个替换方案。
+* 装饰模式就是把要添加的附加功能分别放在单独的类中，并让这个类包含它要装饰的对象，当需要执行时，客户端就可以有选择地、按顺序地使用装饰功能包装对象。
+类图角色和职责
+![](images/装饰模式.png)
+![](images/装饰模式2.png)
+* 适用于：
+    * 装饰者模式（Decorator Pattern）动态的给一个对象添加一些额外的职责。就增加功能来说，此模式比生成子类更为灵活。
+#### 3.2.2 案例
+```C++
+#include <iostream>
+using namespace std;
+
+class Car
+{
+public:
+	virtual void show() = 0;
+protected:
+private:
+};
+
+class RunCar : public Car
+{
+public:
+	void run()
+	{
+		cout << "可以跑" << endl;
+	}
+	virtual void show()
+	{
+		run();
+	}
+protected:
+private:
+};
+
+class SwimCarDirector : public Car
+{
+public:
+	SwimCarDirector(Car *p)
+	{
+		m_p = p;
+	}
+
+	void swim()
+	{
+		cout << "可以游" << endl;
+	}
+
+	virtual void show()
+	{
+		m_p->show();
+		swim();
+	}
+private:
+	Car *m_p;
+};
+
+class FlyCarDirector : public Car
+{
+public:
+	FlyCarDirector(Car *p)
+	{
+		m_p = p;
+	}
+
+	void fly()
+	{
+		cout << "可以飞" << endl;
+	}
+	virtual void show()
+	{
+		m_p->show();
+		fly();
+	}
+private:
+	Car *m_p;
+};
+
+void main()
+{
+	Car *runcar = NULL;
+	runcar = new RunCar;
+	runcar->show();
+
+	cout <<"车开始装饰swim"<<endl;
+	SwimCarDirector *swimCar = new SwimCarDirector(runcar);
+	swimCar->show();
+
+	cout <<"车开始装饰fly"<<endl;
+	FlyCarDirector *flyCar = new FlyCarDirector(swimCar);
+	flyCar->show();
+
+	delete flyCar;
+	delete swimCar;
+	delete runcar;
+	
+	return ;
+}
+```

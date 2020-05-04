@@ -1465,7 +1465,7 @@ void main()
 #### 3.2.1 概念
 * 装饰（ Decorator ）模式又叫做包装模式。通过一种对客户端透明的方式来扩展对象的功能，是继承关系的一个替换方案。
 * 装饰模式就是把要添加的附加功能分别放在单独的类中，并让这个类包含它要装饰的对象，当需要执行时，客户端就可以有选择地、按顺序地使用装饰功能包装对象。
-类图角色和职责
+类图角色和职责  
 ![](images/装饰模式.png)
 ![](images/装饰模式2.png)
 * 适用于：
@@ -1562,3 +1562,72 @@ void main()
 	return ;
 }
 ```
+### 3.3 适配器模式adapter
+#### 3.3.1 概念
+* Adapter模式也叫适配器模式，是构造型模式之一，通过Adapter模式可以改变已有类（或外部类）的接口形式。
+#### 3.3.2 角色和职责
+![](images/适配器模式.png)
+* 适用于：
+    * 是将一个类的接口转换成客户希望的另外一个接口。使得原本由于接口不兼容而不能一起工作的那些类可以一起工作。
+#### 3.3.3 案例
+```C++
+#include <iostream>
+using namespace std;
+
+class Current18v
+{
+public:
+	void use18vCurrent()
+	{
+		cout << "使用18v的交流电" << endl;
+	}
+protected:
+private:
+};
+
+
+class Current220v
+{
+public:
+	void use220vCurrent()
+	{
+		cout << "使用220v的交流电" << endl;
+	}
+protected:
+private:
+};
+
+
+class Adapter : public Current18v
+{
+public:
+	Adapter(Current220v *p220v)
+	{
+		m_p220v = p220v;
+	}
+	void use18vCurrent()
+	{
+		cout << "adapter中使用电流" << endl;
+		m_p220v->use220vCurrent();
+	}
+protected:
+private:
+	Current220v *m_p220v;
+};
+
+void main()
+{
+	Current220v *p220v = new Current220v;
+	Adapter *padapter = new Adapter(p220v);
+	padapter->use18vCurrent();
+
+	delete p220v;
+	delete padapter;
+	return ;
+}
+```
+#### 3.3.4 练习
+* 足球比赛中，中场球员可进攻和防守，教练通过翻译告诉中场球员，要进攻。
+* 思路：	Player，						抽象的球员 （Attack、 Defense）  
+    * class TransLater: public Player 适配器  
+    * class Center : public Player		被适配的对象

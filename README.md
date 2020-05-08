@@ -1820,3 +1820,216 @@ void main()
 	return ;
 }
 ```
+### 3.5 桥接模式
+#### 3.5.1 概念
+* Bridge 模式又叫做桥接模式，是构造型的设计模式之一。Bridge模式基于类的最小设计原则，通过使用封装，聚合以及继承等行为来让不同的类承担不同的责任。它的主要特点是把抽象（abstraction）与行为实现（implementation）分离开来，从而可以保持各部分的独立性以及应对它们的功能扩展。
+#### 3.5.2 角色和职责
+![](images/桥接模式.png)
+* Client
+    * Bridge模式的使用者
+* Abstraction
+    * 抽象类接口（接口或抽象类）维护对行为实现（Implementor）的引用
+* Refined Abstraction
+    * Abstraction子类
+* Implementor
+    * 行为实现类接口 (Abstraction接口定义了基于Implementor接口的更高层次的操作)
+* ConcreteImplementor
+    * Implementor子类
+* 适用于：
+    * 桥接模式（Bridge Pattern）是将抽象部分与实现部分分离（解耦合），使它们都可以独立的变化。
+	* 车 安装 发动机 ；不同型号的车，安装不同型号的发动机
+	* 图形 填 颜色    不同形状的图形，填充上 不同的颜色
+	* 将“车 安装 发动机”这个抽象 和 实现进行分离；两个名字 就设计两个类；
+	* 将“图形 填 颜色”这个抽象 和 实现 进行分离，两个名字，就设计两个类
+#### 3.5.3 案例
+```C++
+#include <iostream>
+using namespace std;
+
+class MyCar1
+{
+public:
+	virtual void installEngine() = 0;
+};
+
+class BMW5 : public MyCar1
+{
+public:
+	virtual void installEngine()
+	{
+		cout << "BMW5 3500CC" << endl;
+	}
+};
+
+class BMW6 : public MyCar1
+{
+public:
+	virtual void installEngine()
+	{
+		cout << "BMW6 4000CC" << endl;
+	}
+};
+
+
+class Jeep11 : public MyCar1
+{
+public:
+	virtual void installEngine()
+	{
+		cout << "Jeep11 1100CC" << endl;
+	}
+};
+
+
+class Jeep12 : public MyCar1
+{
+public:
+	virtual void installEngine()
+	{
+		cout << "Jeep12 1200CC" << endl;
+	}
+};
+
+//不同的车型，不同型号，安装不同类型的发动机，会引起子类的泛滥
+//问题引出
+void main1601()
+{
+	Jeep12 *j12 = new Jeep12;
+	j12->installEngine();
+	delete j12;
+	return ;
+}
+
+class MyCar2
+{
+
+public:
+	virtual void installEngine3500() = 0;
+	virtual void installEngine4000() = 0;
+	virtual void installEngine1100() = 0;
+	virtual void installEngine1200() = 0;
+};
+
+class BMW : public MyCar2
+{
+public:
+	virtual void installEngine3500()
+	{
+		cout << "3500CC" << endl;
+	}
+	virtual void installEngine4000()
+	{
+		cout << "4000CC" << endl;
+	}
+	virtual void installEngine1100() 
+	{
+		cout << "1100CC" << endl;
+	}
+	virtual void installEngine1200()
+	{
+		cout << "1200CC" << endl;
+	}
+};
+
+//这样的设计 不符合开闭原则
+void main1602()
+{
+	BMW *bmw5 = new BMW;
+	bmw5->installEngine3500();
+}
+
+//需要把“安装发动机”这个事，做很好的分解；把抽象 和 行为实现 分开
+//发动机是一个名次，专门抽象成一个类；类中含有一个成员函数，安装发动机
+
+class Engine
+{
+public:
+	virtual void installEngine() = 0;
+};
+
+class Engine4000 : public Engine
+{
+public:
+	virtual void installEngine()
+	{
+		cout << "安装发动机 Engine4000" << endl;
+	}
+};
+
+class Engine3500 : public Engine
+{
+public:
+	virtual void installEngine()
+	{
+		cout << "安装发动机 Engine 3500" << endl;
+	}
+};
+
+class Car
+{
+public:
+	Car(Engine *pengine)
+	{
+		m_engine = pengine;
+	}
+	virtual void installEngine() = 0;
+
+protected:
+	Engine *m_engine;
+};
+
+class BMW7 :public Car
+{
+public:
+	BMW7(Engine *p) : Car(p)
+	{
+
+	}
+
+	//注意车的安装  和 发动机的安装 不同之处
+	virtual void installEngine()
+	{
+		cout << "BMW7 " ; 
+		m_engine->installEngine();
+	}
+protected:
+private:
+};
+
+void main163()
+{
+	Engine4000 *e4000 = new Engine4000;
+	BMW7 *bmw7 = new BMW7(e4000);
+	bmw7->installEngine();
+
+	delete bmw7;
+	delete e4000;
+}
+void main()
+{
+	//main1601();
+	//main1602();
+	main163();
+	system("pause");
+}
+```
+#### 3.5.4 练习
+* 在上述案例场景之中，让jeep11车，安装上1100CC发动机。
+方法：添加Jeep11类，添加Engine1100CC发动机类，在main函数中编写测试案例，体会设计模式的开闭原则。
+* 抽象一个图形AbstractShape，含有操作draw（），可以画圆形、正方形
+* 抽象一个颜色类color，含有getColor()：string
+* 让AbstractShape持有一个color的引用。形成桥接模式。
+* 创建类 	class Circle : public AbstractShape  
+	Class Square : publice AbstractShape
+* 创建类
+	Class Red : public color  
+Class Green : public color
+* 测试： 用红色 画 正方形
+```C++
+Void main()
+{
+	Color color = new Red();
+	AbstractShape *shap = new Square(color);
+	shap.draw();
+}
+```

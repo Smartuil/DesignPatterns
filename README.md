@@ -2034,3 +2034,105 @@ Void main()
 	shap.draw();
 }
 ```
+### 3.6外观模式
+#### 3.6.1 概念
+* Facade模式也叫外观模式，是由GoF提出的23种设计模式中的一种。Facade模式为一组具有类似功能的类群，比如类库，子系统等等，提供一个一致的简单的界面。这个一致的简单的界面被称作facade。
+#### 3.6.2 角色和职责
+![](images/外观模式.png)
+* Façade
+    * 为调用方, 定义简单的调用接口。
+* Clients
+    * 调用者。通过Facade接口调用提供某功能的内部类群。
+* Packages
+    * 功能提供者。指提供功能的类群（模块或子系统）
+* 适用于：
+    * 为子系统中统一一套接口，让子系统更加容易使用。
+#### 3.6.3 案例
+```C++
+#include <iostream>
+using namespace std;
+
+class SystemA
+{
+public:
+	void doThing()
+	{
+		cout << "systemA do...." << endl;
+	}
+};
+
+class SystemB
+{
+public:
+	void doThing()
+	{
+		cout << "systemA do...." << endl;
+	}
+};
+
+class SystemC
+{
+public:
+	void doThing()
+	{
+		cout << "systemA do...." << endl;
+	}
+};
+
+class Facade
+{
+public:
+	Facade()
+	{
+		a = new SystemA;
+		b = new SystemB;
+		c = new SystemC;
+	}
+	~Facade()
+	{
+		delete a;
+		delete b;
+		delete c;
+	}
+
+	void doThing()
+	{
+		a->doThing();
+		b->doThing();
+		c->doThing();
+	}
+
+protected:
+private:
+	SystemA *a;
+	SystemB *b;
+	SystemC *c;
+};
+
+
+void main1414()
+{
+	/*
+	SystemA *a = new SystemA;
+	SystemB *b = new SystemB;
+	SystemC *c = new SystemC;
+
+	a->doThing();
+	b->doThing();
+	c->doThing();
+
+	delete a;
+	delete b;
+	delete c;
+	*/
+
+	Facade *f = new Facade;
+	f->doThing();
+	delete f;
+	cout<<"hello..."<<endl;
+	system("pause");
+	return ;
+}
+```
+#### 3.6.4 练习案例
+* 基金（股票、外汇、期货、国债）
